@@ -4,6 +4,7 @@
 !.env.example
 !**/.env.example
 scripts/compose.env
+/prod/.env.example
 
 # Generated from policy/public-read.json.template
 policy/public-read.json

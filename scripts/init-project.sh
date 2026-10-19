@@ -5,6 +5,7 @@
 # Usage:
 #   ./scripts/init-project.sh example
 #   ./scripts/init-project.sh example --host assets.example.com
+#   ./scripts/init-project.sh englishpsd --host assets.englishpsd.ir --network englishpsd_internal
 #
 # Creates/updates:
 #   .env                 (PROJECT_NAME + shared defaults)
@@ -17,13 +18,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 usage() {
-  echo "Usage: $0 <project-name> [--host <public-assets-host>]" >&2
+  echo "Usage: $0 <project-name> [--host <public-assets-host>] [--network <docker-network>]" >&2
   echo "Example: $0 example --host assets.example.com" >&2
+  echo "Example: $0 englishpsd --host assets.englishpsd.ir --network englishpsd_internal" >&2
   exit 1
 }
 
 PROJECT_NAME="${1:-}"
 PUBLIC_HOST=""
+NETWORK_OVERRIDE=""
 shift || true
 
 while [[ $# -gt 0 ]]; do
@@ -31,6 +34,11 @@ while [[ $# -gt 0 ]]; do
     --host)
       PUBLIC_HOST="${2:-}"
       [[ -n "$PUBLIC_HOST" ]] || usage
+      shift 2
+      ;;
+    --network)
+      NETWORK_OVERRIDE="${2:-}"
+      [[ -n "$NETWORK_OVERRIDE" ]] || usage
       shift 2
       ;;
     -h|--help)
@@ -47,7 +55,7 @@ done
 # S3 bucket names: lowercase, no underscores preferred (we allow hyphens)
 BUCKET="$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')"
 CONTAINER="${BUCKET}_minio"
-NETWORK="${BUCKET}_network"
+NETWORK="${NETWORK_OVERRIDE:-${BUCKET}_network}"
 PUBLIC_HOST="${PUBLIC_HOST:-assets.${BUCKET}.local}"
 
 write_if_missing() {

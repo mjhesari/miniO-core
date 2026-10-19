@@ -16,17 +16,19 @@ services:
         # Service DNS for app (MinIO JS forbids underscores in hostnames)
         aliases:
           - minio
+      proxy: {}
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
       # Public assets only (never private/*)
-      - "traefik.http.routers.minio-assets.rule=Host(`${MINIO_PUBLIC_HOST:?set MINIO_PUBLIC_HOST}`) && PathPrefix(`/public`)"
-      - "traefik.http.routers.minio-assets.entrypoints=websecure"
-      - "traefik.http.routers.minio-assets.tls=true"
-      - "traefik.http.routers.minio-assets.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.englishpsd-minio-assets.rule=Host(`${MINIO_PUBLIC_HOST:?set MINIO_PUBLIC_HOST}`) && PathPrefix(`/public`)"
+      - "traefik.http.routers.englishpsd-minio-assets.entrypoints=websecure"
+      - "traefik.http.routers.englishpsd-minio-assets.tls=true"
+      - "traefik.http.routers.englishpsd-minio-assets.tls.certresolver=letsencrypt"
       # Path-style MinIO: /public/... → /<bucket>/public/...
-      - "traefik.http.routers.minio-assets.middlewares=minio-bucket-prefix"
-      - "traefik.http.middlewares.minio-bucket-prefix.addprefix.prefix=/${MINIO_BUCKET:?set MINIO_BUCKET}"
-      - "traefik.http.services.minio-assets.loadbalancer.server.port=9000"
+      - "traefik.http.routers.englishpsd-minio-assets.middlewares=englishpsd-minio-bucket-prefix"
+      - "traefik.http.middlewares.englishpsd-minio-bucket-prefix.addprefix.prefix=/${MINIO_BUCKET:?set MINIO_BUCKET}"
+      - "traefik.http.services.englishpsd-minio-assets.loadbalancer.server.port=9000"
 
   minio_init:
     image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
@@ -63,4 +65,7 @@ volumes:
 networks:
   app_network:
     name: ${MINIO_NETWORK:?set MINIO_NETWORK via ./scripts/init-project.sh}
+    external: true
+  proxy:
+    name: ${TRAEFIK_NETWORK:-traefik}
     external: true

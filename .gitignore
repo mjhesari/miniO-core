@@ -1,0 +1,12 @@
+# env files (secrets) — keep *.example tracked
+.env
+.env.*
+!.env.example
+!**/.env.example
+scripts/compose.env
+
+# Generated from policy/public-read.json.template
+policy/public-read.json
+# Legacy project-specific policy files
+policy/*-public-read.json
+!policy/public-read.json.template

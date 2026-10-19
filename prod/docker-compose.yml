@@ -2,7 +2,7 @@ services:
   minio:
     # Keep in sync with existing volume data. Downgrading (e.g. 2025-09 → 2024-12)
     # often crash-loops. Pin a known-good RELEASE instead of :latest.
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: public.ecr.aws/y9w4h2u9/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: ${MINIO_CONTAINER:?set MINIO_CONTAINER via ./scripts/init-project.sh}
     command: server /data --console-address ":9001"
     restart: unless-stopped
@@ -29,9 +29,8 @@ services:
       - "traefik.http.routers.englishpsd-minio-assets.middlewares=englishpsd-minio-bucket-prefix"
       - "traefik.http.middlewares.englishpsd-minio-bucket-prefix.addprefix.prefix=/${MINIO_BUCKET:?set MINIO_BUCKET}"
       - "traefik.http.services.englishpsd-minio-assets.loadbalancer.server.port=9000"
-
   minio_init:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    image: ghcr.io/golithus/mc:RELEASE.2025-08-13T08-35-41Z
     container_name: ${MINIO_CONTAINER}_init
     depends_on:
       - minio
